@@ -96,10 +96,21 @@ textarea{min-height:58px;resize:vertical}
 .warnlist{margin:0;padding-left:16px;font-size:12.5px}
 .copybox{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;min-height:90px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
-body.embed{padding-block:8px}body.embed header{display:none}body.embed .app{height:100%;min-height:0}
-@media (max-width:900px){body.embed .app{height:auto}}
-#bPanel{display:none}body.embed #bPanel{display:inline-block}
-body.embed:not(.panel) aside{display:none}body.embed:not(.panel) .app{grid-template-columns:1fr}
+/* modo compacto: dentro de la presentación o en teléfono el modelo ocupa toda la pantalla */
+#bPanel,#bEdit,.cerrar{display:none}
+body.compact #bPanel,body.compact #bEdit{display:inline-block}
+body.compact:not(.edit) .ed{display:none!important}
+body.compact{padding:0;height:100%;display:flex;flex-direction:column;overflow:hidden}
+body.compact header{padding:8px 12px;margin:0;gap:10px;flex:none}body.compact header .sub{display:none}body.compact h1{font-size:13px}body.compact .logo{height:14px}body.compact .logo svg{height:14px}
+body.embed header{display:none}
+body.compact .app{flex:1;display:block;position:relative;min-height:0;height:auto}
+body.compact .stage{position:absolute;inset:0;border:0;min-height:0;height:auto}
+body.compact .hint{display:none}
+body.compact aside{position:absolute;top:0;right:0;bottom:0;width:min(360px,88vw);background:var(--bg);border-left:1px solid var(--line);padding:12px 14px;z-index:6;box-shadow:-8px 0 24px rgba(0,0,0,.12)}
+body.compact:not(.panel) aside{display:none}
+body.compact .cerrar{display:block;align-self:flex-end}
+@media (max-width:640px){body.compact aside{top:auto;left:0;right:0;width:auto;height:min(60%,520px);border-left:0;border-top:1px solid var(--line);border-radius:14px 14px 0 0;box-shadow:0 -8px 24px rgba(0,0,0,.14);padding-bottom:max(12px,env(safe-area-inset-bottom,0px))}
+  .tools button,.tools select{padding:6px 8px;font-size:12px}}
 </style>
 
 
@@ -129,10 +140,11 @@ body.embed:not(.panel) aside{display:none}body.embed:not(.panel) .app{grid-templ
         <button id="vplan" aria-pressed="false">Planta</button>
       </div>
       <button id="bPanel" aria-pressed="false">Panel</button>
-      <button id="bRot" disabled>Girar 90°</button>
-      <button id="bDup" disabled>Duplicar</button>
-      <button id="bDel" disabled>Quitar</button>
-      <div class="seg">
+      <button id="bEdit" aria-pressed="false">Editar</button>
+      <button id="bRot" class="ed" disabled>Girar 90°</button>
+      <button id="bDup" class="ed" disabled>Duplicar</button>
+      <button id="bDel" class="ed" disabled>Quitar</button>
+      <div class="seg ed">
         <select id="addType" aria-label="Equipo para agregar" style="border:0;border-radius:0;width:auto">
           <option value="mezcladorCorto">Mezclador corto</option>
           <option value="codificadora">Codificadora</option>
@@ -151,6 +163,7 @@ body.embed:not(.panel) aside{display:none}body.embed:not(.panel) .app{grid-templ
   </div>
 
   <aside>
+    <button class="cerrar" id="bClose">Cerrar panel</button>
     <div class="kpis" id="kpis"></div>
     <div class="tabs" role="tablist">
       <button role="tab" aria-selected="true" data-tab="equipo">Equipo</button>
@@ -200,6 +213,9 @@ body.embed:not(.panel) aside{display:none}body.embed:not(.panel) .app{grid-templ
 (function(){
 "use strict";
 try{if(window.self!==window.top)document.body.classList.add("embed");}catch(e){document.body.classList.add("embed");}
+const mqNarrow=matchMedia("(max-width:900px)");
+function setCompact(){document.body.classList.toggle("compact",document.body.classList.contains("embed")||mqNarrow.matches);}
+setCompact();mqNarrow.addEventListener?.("change",setCompact);
 const ROOM={w:16.5,d:12,h:2.8}, DOOR={x0:14.9,x1:16.3};
 const KEY='sala-s18-v4';
 const DOC_URL='https://claude.ai/artifact/JzuZUrDzCzSovkGdUZryMc';
@@ -495,15 +511,21 @@ let lastPairs=[];
 function refresh(){const pairs=checkCollisions();updateTape();updateFlow();renderKpis(pairs);state.items.forEach(setLabel);renderPanels();}
 
 // ---------- cameras & controls
+let lastPortrait=null;
+function isPortrait(){return stage.clientWidth<stage.clientHeight*.95;}
 function setView(v){state.view=v;document.getElementById('v3d').setAttribute('aria-pressed',v==='3d');document.getElementById('vplan').setAttribute('aria-pressed',v==='plan');
-  if(controls)controls.dispose();
-  if(v==='3d'){cam=persp;const asp=(stage.clientWidth||1)/(stage.clientHeight||1),k=Math.max(1,1.05/asp);cam.position.set(CX+5*k,15*k,CZ+15*k);controls=new THREE.OrbitControls(cam,cv);controls.target.set(CX,0,CZ+.3);controls.maxPolarAngle=Math.PI*.47;controls.minDistance=3;controls.maxDistance=45;}
-  else{cam=ortho;cam.position.set(CX,30,CZ-.5+.001);controls=new THREE.OrbitControls(cam,cv);controls.target.set(CX,0,CZ-.5);controls.enableRotate=false;controls.screenSpacePanning=true;controls.minZoom=.6;controls.maxZoom=6;cam.zoom=1;}
+  if(controls)controls.dispose();const asp=(stage.clientWidth||1)/(stage.clientHeight||1),pt=isPortrait();lastPortrait=pt;
+  if(v==='3d'){cam=persp;
+    if(pt){const k=Math.max(1,.72/asp);cam.position.set(CX-13*k,15*k,CZ+3.5*k);}else{const k=Math.max(1,1.05/asp);cam.position.set(CX+5*k,15*k,CZ+15*k);}
+    controls=new THREE.OrbitControls(cam,cv);controls.target.set(CX,0,CZ+.3);controls.maxPolarAngle=Math.PI*.47;controls.minDistance=3;controls.maxDistance=50;}
+  else{cam=ortho;if(pt)cam.position.set(CX-.001,30,CZ);else cam.position.set(CX,30,CZ-.5+.001);
+    controls=new THREE.OrbitControls(cam,cv);controls.target.set(CX,0,pt?CZ:CZ-.5);controls.enableRotate=false;controls.screenSpacePanning=true;controls.minZoom=.6;controls.maxZoom=6;cam.zoom=1;}
   sun.castShadow=v==='3d';fill.visible=v==='3d';renderer.shadowMap.needsUpdate=true;
   controls.enableDamping=true;controls.dampingFactor=.12;controls.update();resize();save();}
 function resize(){const w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);
-  persp.aspect=w/h;persp.updateProjectionMatrix();
-  const a=w/h;let hw=ROOM.w/2+1.2,hh=ROOM.d/2+1.6;if(hw/hh>a)hh=hw/a;else hw=hh*a;Object.assign(ortho,{left:-hw,right:hw,top:hh,bottom:-hh});ortho.updateProjectionMatrix();}
+  persp.aspect=w/h;persp.updateProjectionMatrix();const pt=isPortrait();
+  if(lastPortrait!==null&&pt!==lastPortrait){lastPortrait=pt;setView(state.view);return;}
+  const a=w/h;let hw=(pt?ROOM.d:ROOM.w)/2+1.2,hh=(pt?ROOM.w:ROOM.d)/2+1.6;if(hw/hh>a)hh=hw/a;else hw=hh*a;Object.assign(ortho,{left:-hw,right:hw,top:hh,bottom:-hh});ortho.updateProjectionMatrix();}
 new ResizeObserver(resize).observe(stage);
 
 // ---------- labels each frame
@@ -547,7 +569,7 @@ document.addEventListener('keydown',e=>{if(/INPUT|TEXTAREA|SELECT/.test(document
     objs[it.id].g.position.set(it.x,0,it.z);showCoord(it);refresh();save();e.preventDefault();}});
 
 // ---------- actions
-function select(id){selId=id;if(id&&document.body.classList.contains('embed')&&!document.body.classList.contains('panel'))togglePanel(true);['bRot','bDup','bDel'].forEach(b=>document.getElementById(b).disabled=!id);
+function select(id){selId=id;if(id&&document.body.classList.contains('compact')&&!document.body.classList.contains('panel'))togglePanel(true);['bRot','bDup','bDel'].forEach(b=>document.getElementById(b).disabled=!id);
   if(id)openTab('equipo');refreshLight();}
 function refreshLight(){updateTape();renderPanels();}
 function rotateSel(){const it=byId(selId);if(!it)return;it.rot=((it.rot||0)+90)%360;const d=dims(it);
@@ -571,6 +593,8 @@ const HINT=document.getElementById('hint').textContent;
 
 function togglePanel(on){const b=document.body;on=on===undefined?!b.classList.contains('panel'):on;b.classList.toggle('panel',on);document.getElementById('bPanel').setAttribute('aria-pressed',on);requestAnimationFrame(resize);}
 document.getElementById('bPanel').onclick=()=>togglePanel();
+document.getElementById('bClose').onclick=()=>togglePanel(false);
+document.getElementById('bEdit').onclick=()=>{const on=!document.body.classList.contains('edit');document.body.classList.toggle('edit',on);document.getElementById('bEdit').setAttribute('aria-pressed',on);};
 document.getElementById('v3d').onclick=()=>setView('3d');
 document.getElementById('vplan').onclick=()=>setView('plan');
 document.getElementById('bRot').onclick=rotateSel;

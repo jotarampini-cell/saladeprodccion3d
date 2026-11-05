@@ -26,7 +26,7 @@ body{margin:0;background:var(--blanco);color:var(--negro);font-family:var(--f);f
 .barra .t{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .barra a{font-weight:600;font-size:13px;color:var(--negro);text-decoration:none;white-space:nowrap}
 .barra a:hover{text-decoration:underline}
-.hero{height:calc(100vh - 44px);height:calc(100svh - 44px);min-height:520px;display:flex;flex-direction:column}
+.hero{height:calc(100vh - 44px);height:calc(100svh - 44px);min-height:420px;display:flex;flex-direction:column}
 .hero iframe{flex:1;width:100%;border:0;display:block;background:#eef0f2}
 .bajar{display:flex;justify-content:center;align-items:center;gap:8px;height:40px;font-weight:600;font-size:13px;color:var(--apoyo);text-decoration:none;border-top:1px solid var(--linea)}
 .bajar:hover{color:var(--negro)}
@@ -72,7 +72,11 @@ a:focus-visible{outline:2px solid var(--azul);outline-offset:2px}
   ol.pasos{grid-template-columns:1fr}
   .fila{grid-template-columns:110px minmax(0,1fr)}
   .barra .t{font-size:12px}
-  .hero{height:auto;min-height:0}.hero iframe{height:calc(100svh - 84px);min-height:600px;flex:none}
+  .barra{height:40px}.barra img{height:10px}.barra .sep{display:none}
+  .hero{height:calc(100vh - 40px);height:calc(100svh - 40px);min-height:420px}
+  .bajar{height:36px;font-size:12px}
+  main{padding-top:40px;gap:44px}
+  .dato b{font-size:26px}
 }
 </style>
 
