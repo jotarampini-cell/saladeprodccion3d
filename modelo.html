@@ -163,7 +163,6 @@ body.compact .cerrar{display:block;align-self:flex-end}
           <option value="mesa">Mesa de acero</option>
           <option value="palet">Palet</option>
           <option value="alimentacion">Alimentación de línea</option>
-          <option value="marca">Marca verde</option>
         </select>
         <button id="bAdd">Agregar</button>
       </div>
@@ -266,8 +265,6 @@ const PLAN=[
   {id:'e2',type:'etiquetadora',line:2,step:5,x:7.05,z:3.35},
   {id:'t2',type:'mesa',line:2,step:6,x:8.53,z:3.4},
   {id:'p2',type:'palet',line:2,step:7,x:9.9,z:3.3},
-  {id:'g2a',type:'marca',line:2,x:2.98,z:4.06,note:'Cuadro verde del plano original. Definir qué indica.'},
-  {id:'g2b',type:'marca',line:2,x:6.73,z:3.99,note:'Cuadro verde del plano original. Definir qué indica.'},
   {id:'mz3',type:'mezclador',line:3,step:1,x:.97,z:5.3},
   {id:'r3',type:'recipiente',line:3,step:2,x:2.1,z:5.2},
   {id:'a3',type:'alimentacion',line:3,step:3,x:3.05,z:5.15},
@@ -305,7 +302,7 @@ const STATUS=[['pend','Pendiente'],['curso','En curso'],['listo','Listo']];
 // ---------- state
 let state=load()||fresh();
 function fresh(){return {items:DEFAULT.map(o=>({rot:0,...o})),labeler:2,plastic:false,req:{},layers:{grid:true,tape:true,flow:true,lbl:(window.innerWidth||1000)>700,walls:true,snap:true},view:'3d',seq:1};}
-function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&Array.isArray(s.items))return s;}catch(e){}return null;}
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&Array.isArray(s.items)){s.items=s.items.filter(i=>i.type!=='marca');return s;}}catch(e){}return null;}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
 let selId=null, focusLine=null;
 
