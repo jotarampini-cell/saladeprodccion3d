@@ -103,9 +103,12 @@ textarea{min-height:58px;resize:vertical}
 .chip-sel button{padding:5px 8px;font-size:12px;flex:none}
 .chip-sel:not([hidden])~.coord{bottom:58px}
 /* modo compacto: dentro de la presentación o en teléfono el modelo ocupa toda la pantalla */
-#bPanel,#bEdit,.cerrar{display:none}
-body.compact #bPanel,body.compact #bEdit{display:inline-block}
-body.compact:not(.edit) .ed{display:none!important}
+#bPanel,.cerrar{display:none}
+body.compact #bPanel{display:inline-block}
+body:not(.edit) .ed{display:none!important}
+body.edit #bEdit{background:var(--azul);border-color:var(--azul);color:#fff}
+fieldset.form{border:0;margin:0;padding:0;min-width:0;display:flex;flex-direction:column;gap:10px}
+fieldset.form:disabled{opacity:.75}
 body.compact{padding:0;height:100%;display:flex;flex-direction:column;overflow:hidden}
 body.compact header{padding:8px 12px;margin:0;gap:10px;flex:none}body.compact header .sub{display:none}body.compact h1{font-size:13px}body.compact .logo{height:14px}body.compact .logo svg{height:14px}
 body.embed header{display:none}
@@ -147,7 +150,7 @@ body.compact .cerrar{display:block;align-self:flex-end}
       </div>
       <button id="bPanel" aria-pressed="false">Panel</button>
       <button id="bEdit" aria-pressed="false">Editar</button>
-      <div class="seg"><button id="bUndo" disabled title="Deshacer (Ctrl+Z)" aria-label="Deshacer">↶ Deshacer</button><button id="bRedo" disabled title="Rehacer (Ctrl+Y)" aria-label="Rehacer">↷</button></div>
+      <div class="seg ed"><button id="bUndo" disabled title="Deshacer (Ctrl+Z)" aria-label="Deshacer">↶ Deshacer</button><button id="bRedo" disabled title="Rehacer (Ctrl+Y)" aria-label="Rehacer">↷</button></div>
       <button id="bRot" class="ed" disabled>Girar 90°</button>
       <button id="bDup" class="ed" disabled>Duplicar</button>
       <button id="bDel" class="ed" disabled>Quitar</button>
@@ -165,9 +168,9 @@ body.compact .cerrar{display:block;align-self:flex-end}
         <button id="bAdd">Agregar</button>
       </div>
     </div>
-    <div class="hint" id="hint">Arrastra un equipo para moverlo. Arrastra el fondo para girar la vista y usa la rueda o dos dedos para acercar.</div>
+    <div class="hint" id="hint">Vista bloqueada: puedes girar, acercar y tocar los equipos para ver sus datos. Pulsa Editar para moverlos.</div>
     <div class="coord" id="coord" hidden></div>
-    <div class="chip-sel" id="selChip" hidden><b id="chipName"></b><button id="chipRot">Girar</button><button id="chipInfo">Ver datos</button><button id="chipOff" aria-label="Quitar selección">✕</button></div>
+    <div class="chip-sel" id="selChip" hidden><b id="chipName"></b><button id="chipRot" class="ed">Girar</button><button id="chipInfo">Ver datos</button><button id="chipOff" aria-label="Quitar selección">✕</button></div>
   </div>
 
   <aside>
@@ -554,7 +557,7 @@ let drag=null,down=null;
 function setNdc(e){const r=cv.getBoundingClientRect();ndc.set((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1);ray.setFromCamera(ndc,cam);}
 function pick(){const hs=ray.intersectObjects(itemGroup.children,true);for(const h of hs){const id=h.object.userData.id;if(id)return id;}return null;}
 cv.addEventListener('pointerdown',e=>{setNdc(e);const id=pick();down={x:e.clientX,y:e.clientY,id};
-  if(id){const it=byId(id);select(id);if(ray.ray.intersectPlane(plane,hit)){drag={id,ox:hit.x-it.x,oz:hit.z-it.z,moved:false,pre:snap()};controls.enabled=false;cv.setPointerCapture(e.pointerId);cv.classList.add('dragging');}}},{capture:true});
+  if(id){const it=byId(id);select(id);if(isEdit()&&ray.ray.intersectPlane(plane,hit)){drag={id,ox:hit.x-it.x,oz:hit.z-it.z,moved:false,pre:snap()};controls.enabled=false;cv.setPointerCapture(e.pointerId);cv.classList.add('dragging');}}},{capture:true});
 cv.addEventListener('pointermove',e=>{if(!drag){if(e.pointerType==='mouse'){setNdc(e);cv.style.cursor=pick()?'pointer':'';}return;}
   setNdc(e);if(!ray.ray.intersectPlane(plane,hit))return;const it=byId(drag.id);const d=dims(it);const s=state.layers.snap?.1:.01;
   let x=Math.round((hit.x-drag.ox)/s)*s,z=Math.round((hit.z-drag.oz)/s)*s;
@@ -569,7 +572,7 @@ function showCoord(it){const c=document.getElementById('coord');c.hidden=false;c
 document.addEventListener('keydown',e=>{if(/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))return;
   if((e.ctrlKey||e.metaKey)&&(e.key==='z'||e.key==='Z')){e.preventDefault();e.shiftKey?redoIt():undoIt();return;}
   if((e.ctrlKey||e.metaKey)&&(e.key==='y'||e.key==='Y')){e.preventDefault();redoIt();return;}
-  if(e.key==='Escape'){select(null);return;}if(!selId)return;const it=byId(selId);
+  if(e.key==='Escape'){select(null);return;}if(!selId||!isEdit())return;const it=byId(selId);
   if(e.key==='r'||e.key==='R'){rotateSel();e.preventDefault();}
   else if(e.key==='Delete'||e.key==='Backspace'){removeSel();e.preventDefault();}
   else if(e.key.startsWith('Arrow')){checkpoint();const st=e.shiftKey?.5:.1;const d=dims(it);
@@ -591,7 +594,7 @@ function findFree(w,d,near){const solid=state.items.filter(i=>!TYPES[i.type].flo
     if(r.z0<1.3&&r.x1>DOOR.x0&&r.x0<DOOR.x1)return false;return!solid.some(q=>r.x0<q.x1&&r.x1>q.x0&&r.z0<q.z1&&r.z1>q.z0);};
   if(near){for(let k=0;k<40;k++){const a=k*.7,rr=.3+k*.12;const x=+(near.x+Math.cos(a)*rr).toFixed(1),z=+(near.z+Math.sin(a)*rr).toFixed(1);if(ok(x,z))return{x,z};}}
   for(let z=d/2+.2;z<ROOM.d;z+=.1)for(let x=ROOM.w-w/2-.2;x>0;x-=.1)if(ok(x,z))return{x:+x.toFixed(2),z:+z.toFixed(2)};return{x:CX,z:CZ};}
-function addItem(type,extra={}){checkpoint();const t=TYPES[type];const p=findFree(t.w,t.d,extra.near);delete extra.near;
+function addItem(type,extra={}){if(!isEdit())setEdit(true);checkpoint();const t=TYPES[type];const p=findFree(t.w,t.d,extra.near);delete extra.near;
   const it={id:'n'+(state.seq++),type,line:null,x:p.x,z:p.z,rot:0,...extra};state.items.push(it);buildItem(it);dimLines();select(it.id);refresh();save();return it;}
 function dupSel(){const it=byId(selId);if(!it)return;const t=TYPES[it.type];
   const n=addItem(it.type,{name:it.name,line:it.line,rot:it.rot,note:it.note,near:{x:it.x+dims(it).w,z:it.z}});if(n.rot){const d=dims(n);objs[n.id].g.rotation.y=-n.rot*Math.PI/180;}}
@@ -603,7 +606,10 @@ const HINT=document.getElementById('hint').textContent;
 function togglePanel(on){const b=document.body;on=on===undefined?!b.classList.contains('panel'):on;b.classList.toggle('panel',on);document.getElementById('bPanel').setAttribute('aria-pressed',on);requestAnimationFrame(resize);}
 document.getElementById('bPanel').onclick=()=>togglePanel();
 document.getElementById('bClose').onclick=()=>togglePanel(false);
-document.getElementById('bEdit').onclick=()=>{const on=!document.body.classList.contains('edit');document.body.classList.toggle('edit',on);document.getElementById('bEdit').setAttribute('aria-pressed',on);};
+function isEdit(){return document.body.classList.contains('edit');}
+function setEdit(on){document.body.classList.toggle('edit',on);const b=document.getElementById('bEdit');b.setAttribute('aria-pressed',on);b.textContent=on?'Bloquear':'Editar';
+  document.getElementById('hint').textContent=on?'Edición activa: arrastra un equipo para moverlo. Pulsa Bloquear al terminar.':HINT;renderPanels();}
+document.getElementById('bEdit').onclick=()=>{setEdit(!isEdit());flash(isEdit()?'Edición activa. Ya puedes mover los equipos.':'Vista bloqueada.');};
 document.getElementById('v3d').onclick=()=>setView('3d');
 document.getElementById('vplan').onclick=()=>setView('plan');
 document.getElementById('bRot').onclick=rotateSel;
@@ -639,14 +645,14 @@ function renderEquipo(){const p=document.getElementById('pEquipo');const it=selI
   const t=TYPES[it.type],d=dims(it),ghost=isGhost(it);
   p.innerHTML=`<h2>${escapeHtml(t.label)}</h2>`+
    (ghost?`<div class="card warn"><b>Esta línea no tiene etiquetadora</b><span>Solo hay una etiquetadora y hoy está en la línea ${state.labeler}. Los envases de esta línea tienen que llevarse hasta allá; el modelo marca ese recorrido en naranja.</span><div class="btns"><button id="eqMoveLab">Pasar la etiquetadora a la línea ${it.line}</button></div></div>`:'')+
-   `<label class="f">Nombre<input id="eqName" value="${escapeHtml(it.name||'')}" placeholder="${escapeHtml(nameOf(it))}"></label>
+   (isEdit()?'':'<p class="muted" style="margin:0;font-size:12.5px">Vista bloqueada. Pulsa Editar para cambiar estos datos.</p>')+`<fieldset class="form" ${isEdit()?'':'disabled'}><label class="f">Nombre<input id="eqName" value="${escapeHtml(it.name||'')}" placeholder="${escapeHtml(nameOf(it))}"></label>
     <div class="row2"><label class="f">Línea<select id="eqLine">${lineOptions(it.line)}</select></label>
     <label class="f">Orden en el flujo<input id="eqStep" type="number" min="0" max="12" step="1" value="${it.step||''}" placeholder="Fuera del flujo"></label></div>
     <div class="row2"><label class="f">Desde la pared izquierda (m, centro)<input id="eqX" type="number" step="0.1" value="${it.x}"></label>
     <label class="f">Desde la pared de la puerta (m, centro)<input id="eqZ" type="number" step="0.1" value="${it.z}"></label></div>
     <p class="muted" style="margin:0;font-size:12.5px">Huella: ${fmt(d.w,2)} × ${fmt(d.d,2)} m${t.h?` · alto aprox. ${fmt(t.h,2)} m`:''} · giro ${it.rot||0}°${bad.has(it.id)?' · <b style="color:var(--warn)">choca o está fuera de lugar</b>':''}</p>
     <label class="f">Nota<textarea id="eqNote" placeholder="Observaciones de este equipo">${escapeHtml(it.note||'')}</textarea></label>
-    <div class="btns"><button id="eqRot">Girar 90°</button><button id="eqDup">Duplicar</button><button id="eqDel">Quitar</button><button id="eqDone">Listo</button></div>`;
+    <div class="btns"><button id="eqRot">Girar 90°</button><button id="eqDup">Duplicar</button><button id="eqDel">Quitar</button><button id="eqDone">Listo</button></div></fieldset>`;
   const q=s=>document.getElementById(s);
   if(ghost)q('eqMoveLab').onclick=()=>setLabeler(it.line);
   q('eqName').onfocus=()=>checkpoint();
