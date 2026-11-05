@@ -60,7 +60,7 @@ button:disabled{opacity:.45;cursor:default}
 .lbl.bad{border-color:var(--warn);color:var(--warn)}
 .lbl.dim{opacity:.25}
 aside{min-width:0;display:flex;flex-direction:column;gap:12px;overflow:auto}
-.kpis{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line)}
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
 .kpi{background:var(--bg);padding:9px 10px;min-width:0}
 .kpi b{display:block;font-weight:800;font-size:17px;font-variant-numeric:tabular-nums}
 .kpi span{font-size:11.5px;color:var(--muted)}
@@ -225,7 +225,7 @@ const mqNarrow=matchMedia("(max-width:900px)");
 function setCompact(){document.body.classList.toggle("compact",document.body.classList.contains("embed")||mqNarrow.matches);}
 setCompact();mqNarrow.addEventListener?.("change",setCompact);
 const ROOM={w:16.5,d:12,h:2.8}, DOOR={x0:14.9,x1:16.3};
-const KEY='sala-s18-v4';
+const KEY='sala-s18-v5';
 const DOC_URL='https://claude.ai/artifact/JzuZUrDzCzSovkGdUZryMc';
 const fmt=(n,d=1)=>Number(n).toLocaleString('es-VE',{minimumFractionDigits:d,maximumFractionDigits:d});
 
@@ -281,15 +281,15 @@ const PLAN=[
 ];
 // el plano no está a escala: se reparten las posiciones sobre la sala de 16,5 × 12 m
 const SX=16.5/11.5, SZ=12/8;
-// cada línea queda en una franja libre: las filas de columnas (z = 4 m y z = 8 m) caen en los pasillos
-const LINE_Z={1:2.0,2:5.0,3:7.0,4:10.0}, PLAN_Z={1:1.95,2:3.35,3:5.25,4:7.0};
+// cada línea queda en una franja libre: las columnas (junto a la pared de la puerta y a 5,85 m de ella) caen fuera de las líneas
+const LINE_Z={1:2.0,2:4.1,3:7.0,4:10.0}, PLAN_Z={1:1.95,2:3.35,3:5.25,4:7.0};
 const place=o=>{const x=o.x*SX;let z=LINE_Z[o.line]+(o.z-PLAN_Z[o.line])*SZ;if(o.type==='marca')z=LINE_Z[o.line]+.75;
   return{...o,x:+x.toFixed(2),z:+z.toFixed(2),rot:o.type==='palet'?90:(o.rot||0)};};
 const DEFAULT=PLAN.map(place).concat([
-  {id:'c1',type:'columna',line:null,x:5.5,z:4.0,note:'Ubicación estimada. Confirmar en la sala.'},
-  {id:'c2',type:'columna',line:null,x:11.0,z:4.0,note:'Ubicación estimada. Confirmar en la sala.'},
-  {id:'c3',type:'columna',line:null,x:5.5,z:8.0,note:'Ubicación estimada. Confirmar en la sala.'},
-  {id:'c4',type:'columna',line:null,x:11.0,z:8.0,note:'Ubicación estimada. Confirmar en la sala.'}]);
+  {id:'c1',type:'columna',line:null,x:6.9,z:.35,note:'Ubicación según el plano de la sala. Confirmar medidas en sitio.'},
+  {id:'c2',type:'columna',line:null,x:12.5,z:.35,note:'Ubicación según el plano de la sala. Confirmar medidas en sitio.'},
+  {id:'c3',type:'columna',line:null,x:6.9,z:5.85,note:'Ubicación según el plano de la sala. Confirmar medidas en sitio.'},
+  {id:'c4',type:'columna',line:null,x:12.5,z:5.85,note:'Ubicación según el plano de la sala. Confirmar medidas en sitio.'}]);
 const REQS=[
   {t:'Etiquetadora',p:'Hoy hay una sola para las líneas 2 y 3. Elige en qué línea queda y mira el traslado en naranja.',act:'etiq',b:'Elegir línea de la etiquetadora'},
   {t:'Otra codificadora',p:'Hoy solo la línea 1 codifica, sobre su banda.',act:'codif',b:'Agregar codificadora'},
@@ -505,13 +505,12 @@ function checkCollisions(){bad=new Set();const solid=state.items.filter(i=>!TYPE
   return pairs;}
 function rectGap(A,B){const dx=Math.max(0,B.x0-A.x1,A.x0-B.x1),dz=Math.max(0,B.z0-A.z1,A.z0-B.z1);return Math.hypot(dx,dz);}
 function renderKpis(pairs){const solid=state.items.filter(i=>!TYPES[i.type].floor&&!isGhost(i));
-  const area=solid.filter(i=>i.type!=='columna').reduce((s,i)=>{const d=dims(i);return s+d.w*d.d;},0);const room=ROOM.w*ROOM.d;
+  const room=ROOM.w*ROOM.d;
   let gap=null,gp='';const boxes=[1,2,3,4].map(n=>[n,lineBox(n)]).filter(x=>x[1]);
   for(let a=0;a<boxes.length;a++)for(let b=a+1;b<boxes.length;b++){const g=rectGap(boxes[a][1],boxes[b][1]);if(gap===null||g<gap){gap=g;gp=`entre líneas ${boxes[a][0]} y ${boxes[b][0]}`;}}
   const n=pairs.length;
   document.getElementById('kpis').innerHTML=
    `<div class="kpi"><b>${fmt(room,1)} m²</b><span>Superficie de la sala</span></div>`+
-   `<div class="kpi"><b>${fmt(area,1)} m²</b><span>Ocupan los equipos (${fmt(area/room*100,0)} %)</span></div>`+
    `<div class="kpi"><b>${gap===null?'–':fmt(gap,2)+' m'}</b><span>Pasillo más angosto ${gp}</span></div>`+
    `<div class="kpi ${n?'alert':''}"><b>${n}</b><span>${n===1?'Choque o equipo fuera de lugar':'Choques o equipos fuera de lugar'}</span></div>`;
   lastPairs=pairs;}
