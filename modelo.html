@@ -98,6 +98,8 @@ textarea{min-height:58px;resize:vertical}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 body.embed{padding-block:8px}body.embed header{display:none}body.embed .app{height:100%;min-height:0}
 @media (max-width:900px){body.embed .app{height:auto}}
+#bPanel{display:none}body.embed #bPanel{display:inline-block}
+body.embed:not(.panel) aside{display:none}body.embed:not(.panel) .app{grid-template-columns:1fr}
 </style>
 
 
@@ -126,6 +128,7 @@ body.embed{padding-block:8px}body.embed header{display:none}body.embed .app{heig
         <button id="v3d" aria-pressed="true">Vista 3D</button>
         <button id="vplan" aria-pressed="false">Planta</button>
       </div>
+      <button id="bPanel" aria-pressed="false">Panel</button>
       <button id="bRot" disabled>Girar 90°</button>
       <button id="bDup" disabled>Duplicar</button>
       <button id="bDel" disabled>Quitar</button>
@@ -544,7 +547,7 @@ document.addEventListener('keydown',e=>{if(/INPUT|TEXTAREA|SELECT/.test(document
     objs[it.id].g.position.set(it.x,0,it.z);showCoord(it);refresh();save();e.preventDefault();}});
 
 // ---------- actions
-function select(id){selId=id;['bRot','bDup','bDel'].forEach(b=>document.getElementById(b).disabled=!id);
+function select(id){selId=id;if(id&&document.body.classList.contains('embed')&&!document.body.classList.contains('panel'))togglePanel(true);['bRot','bDup','bDel'].forEach(b=>document.getElementById(b).disabled=!id);
   if(id)openTab('equipo');refreshLight();}
 function refreshLight(){updateTape();renderPanels();}
 function rotateSel(){const it=byId(selId);if(!it)return;it.rot=((it.rot||0)+90)%360;const d=dims(it);
@@ -566,6 +569,8 @@ function setPlastic(v){state.plastic=v;state.items.filter(i=>i.type==='palet').f
 let flashT=null;function flash(msg){const h=document.getElementById('hint');h.textContent=msg;clearTimeout(flashT);flashT=setTimeout(()=>h.textContent=HINT,4000);}
 const HINT=document.getElementById('hint').textContent;
 
+function togglePanel(on){const b=document.body;on=on===undefined?!b.classList.contains('panel'):on;b.classList.toggle('panel',on);document.getElementById('bPanel').setAttribute('aria-pressed',on);requestAnimationFrame(resize);}
+document.getElementById('bPanel').onclick=()=>togglePanel();
 document.getElementById('v3d').onclick=()=>setView('3d');
 document.getElementById('vplan').onclick=()=>setView('plan');
 document.getElementById('bRot').onclick=rotateSel;

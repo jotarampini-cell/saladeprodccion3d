@@ -3,315 +3,144 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Sala de envasado · Junta Directiva</title>
-<meta name="description" content="Nueva distribución de la sala de envasado de Sativa 18. Presentación para la Junta Directiva.">
+<title>Sala de envasado · Sativa 18</title>
+<meta name="description" content="Modelo 3D de la nueva distribución de la sala de envasado de Sativa 18.">
+<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,600;0,800;1,300&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap">
 <style>
-/* Presentación por láminas FACE: cada lámina ocupa la pantalla; portada y cierre oscuros, contenido sobre blanco.
-   Diseño de un solo tema a propósito (identidad FACE), con colores explícitos. */
+/* El modelo 3D ocupa la pantalla al entrar; debajo, un resumen corto. Identidad FACE: blanco, negro y un solo acento. */
 :root{
-  --negro:#000000; --blanco:#ffffff; --gris:#8d8e8f; --apoyo:#666666; --sup:#f2f2f2; --sup2:#e6e6e6; --sup3:#d4d4d4;
-  --azul:#0051ff; --naranja:#ff4500;
+  --negro:#000000; --blanco:#ffffff; --apoyo:#666666; --sup:#f2f2f2; --linea:#d4d4d4; --naranja:#ff4500; --azul:#0051ff;
   --f:"Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-  --mx:clamp(20px,6.67vw,128px);
-  --t-title:clamp(26px,2.92vw,56px); --t-eyebrow:clamp(12px,1.15vw,22px); --t-h:clamp(17px,1.88vw,36px);
-  --t-body:clamp(15px,1.56vw,30px); --t-num:clamp(15px,1.46vw,28px); --t-big:clamp(38px,4.6vw,88px); --t-note:clamp(12px,1.15vw,22px);
+  --gx:max(16px,env(safe-area-inset-left,0px)); --gxr:max(16px,env(safe-area-inset-right,0px));
   color-scheme:light;
 }
 *{box-sizing:border-box}
-html{scroll-snap-type:y mandatory;scroll-behavior:smooth;background:var(--blanco)}
-@media (max-width:820px),(max-height:560px){html{scroll-snap-type:none}}
-@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-body{margin:0;background:var(--blanco);color:var(--negro);font-family:var(--f);font-weight:300;font-size:var(--t-body);line-height:1.35}
-.lamina{position:relative;min-height:100vh;min-height:100svh;scroll-snap-align:start;display:flex;flex-direction:column;
-  padding-block:clamp(28px,6.7vh,72px) clamp(56px,9vh,96px);padding-left:max(var(--mx),env(safe-area-inset-left,0px));padding-right:max(var(--mx),env(safe-area-inset-right,0px));overflow:hidden}
-.cab{display:flex;justify-content:space-between;align-items:flex-start;gap:24px}
-.eyebrow{font-weight:600;font-size:var(--t-eyebrow);letter-spacing:.12em;text-transform:uppercase;color:var(--apoyo);margin:0 0 .5em}
-h2.titulo{font-weight:800;font-size:var(--t-title);line-height:1.1;text-transform:uppercase;margin:0;max-width:24ch;text-wrap:balance}
-.logo-sup{width:clamp(90px,9.4vw,180px);height:auto;flex:none}
-.zona{flex:1;display:flex;flex-direction:column;justify-content:center;gap:clamp(18px,3vh,44px);padding-top:clamp(18px,4vh,48px)}
-.pie{position:absolute;left:0;right:0;bottom:clamp(16px,3.2vh,40px);text-align:center;font-weight:400;font-size:var(--t-note);color:var(--apoyo);padding-inline:var(--mx)}
-.nota{font-weight:400;font-size:var(--t-note);color:var(--apoyo);margin:0}
-.cierre-msg{font-weight:400;font-size:clamp(16px,1.67vw,32px);margin:0}
-.num{font-weight:600;font-size:var(--t-num);color:var(--apoyo)}
-.h{font-weight:600;font-size:var(--t-h);line-height:1.2;margin:.2em 0 .3em}
+html{background:var(--blanco)}
+body{margin:0;background:var(--blanco);color:var(--negro);font-family:var(--f);font-weight:300;font-size:16px;line-height:1.45}
+.barra{height:44px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding-left:var(--gx);padding-right:var(--gxr);border-bottom:1px solid var(--linea)}
+.barra .marca{display:flex;align-items:center;gap:12px;min-width:0}
+.barra img{height:12px;width:auto;flex:none}
+.barra .sep{width:1px;height:14px;background:var(--linea)}
+.barra .t{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.barra a{font-weight:600;font-size:13px;color:var(--negro);text-decoration:none;white-space:nowrap}
+.barra a:hover{text-decoration:underline}
+.hero{height:calc(100vh - 44px);height:calc(100svh - 44px);min-height:520px;display:flex;flex-direction:column}
+.hero iframe{flex:1;width:100%;border:0;display:block;background:#eef0f2}
+.bajar{display:flex;justify-content:center;align-items:center;gap:8px;height:40px;font-weight:600;font-size:13px;color:var(--apoyo);text-decoration:none;border-top:1px solid var(--linea)}
+.bajar:hover{color:var(--negro)}
+main{max-width:1180px;margin:0 auto;padding:56px var(--gxr) 40px var(--gx);display:flex;flex-direction:column;gap:56px}
+.eyebrow{font-weight:600;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--apoyo);margin:0 0 8px}
+h2{font-weight:800;font-size:clamp(22px,2.6vw,32px);line-height:1.12;text-transform:uppercase;margin:0 0 24px;text-wrap:balance;max-width:28ch}
 p{margin:0}
-
-/* portada y cierre */
-.oscura{background:var(--negro);color:var(--blanco)}
-.oscura .foto{position:absolute;inset:0;background-size:cover;background-position:center 30%}
-.oscura .velo{position:absolute;inset:0;background:rgba(0,0,0,.62)}
-.oscura>*:not(.foto):not(.velo){position:relative}
-.logo-portada{width:clamp(180px,19.8vw,380px);height:auto}
-.portada-titulo{font-weight:800;font-size:clamp(36px,5vw,96px);line-height:1.05;margin:auto 0 .35em;max-width:14ch;text-wrap:balance}
-.portada-sub{font-size:clamp(17px,1.88vw,36px);max-width:34ch}
-.portada-meta{font-weight:600;font-size:clamp(14px,1.67vw,32px);margin-top:clamp(28px,8vh,110px)}
-
-/* columnas con regla */
-.cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(18px,2.4vw,46px)}
-.col{border-top:4px solid var(--negro);padding-top:clamp(12px,1.6vh,22px);min-width:0}
-.banda{background:var(--sup);border-radius:28px;padding:clamp(16px,2.2vh,30px) clamp(18px,2vw,40px);display:flex;align-items:center;gap:clamp(14px,2vw,40px);flex-wrap:wrap}
-.banda .gran{font-weight:800;font-size:clamp(34px,4.4vw,84px);color:var(--naranja);line-height:1;white-space:nowrap}
-.banda .frase{font-size:clamp(16px,1.77vw,34px);flex:1;min-width:16ch}
-.banda .lab{font-weight:600;font-size:clamp(12px,1.25vw,24px);letter-spacing:.1em;text-transform:uppercase;color:var(--apoyo)}
-
-/* modelo */
-.marco{flex:1;min-height:58vh;border:1px solid var(--sup3);display:flex}
-.marco iframe{flex:1;border:0;width:100%;min-height:58vh;background:#eef0f2}
-.marco-pie{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center}
-a.boton{font-weight:600;font-size:var(--t-note);color:var(--negro);border:2px solid var(--negro);padding:.45em .9em;border-radius:999px;text-decoration:none;white-space:nowrap}
-a.boton:hover{background:var(--negro);color:var(--blanco)}
-
-/* filas numeradas */
-.filas{display:flex;flex-direction:column}
-.fila{display:grid;grid-template-columns:clamp(48px,8.3vw,160px) minmax(0,1fr) auto;gap:clamp(10px,1.6vw,32px);align-items:baseline;border-top:2px solid var(--negro);padding:clamp(10px,1.8vh,22px) 0}
-.fila:last-child{border-bottom:2px solid var(--negro)}
-.fila .n{font-weight:800;font-size:clamp(28px,2.92vw,56px);line-height:1}
-.fila .dato{font-weight:600;font-size:var(--t-h);white-space:nowrap;font-variant-numeric:tabular-nums}
-.fila .dato small{display:block;font-weight:300;font-size:var(--t-note);color:var(--apoyo);text-align:right}
-.fila .t{font-size:clamp(14px,1.35vw,26px)}
-
-/* gráfico de barras */
-.barras{display:flex;flex-direction:column;gap:clamp(10px,1.8vh,22px)}
-.barra{display:grid;grid-template-columns:clamp(110px,15vw,290px) minmax(0,1fr);gap:clamp(10px,1.4vw,26px);align-items:center}
-.barra .et{font-weight:600;font-size:clamp(14px,1.46vw,28px);line-height:1.15}
-.pista{position:relative;height:clamp(26px,4.6vh,52px)}
-.pista .b{position:absolute;left:0;top:0;bottom:0;background:var(--sup3);border-radius:0 4px 4px 0}
-.barra.clave .b{background:var(--naranja)}
-.pista .v{position:absolute;top:50%;transform:translateY(-50%);font-weight:800;font-size:clamp(14px,1.56vw,30px);font-variant-numeric:tabular-nums;white-space:nowrap;padding-left:.5em}
-.eje{display:grid;grid-template-columns:clamp(110px,15vw,290px) minmax(0,1fr);gap:clamp(10px,1.4vw,26px)}
-.eje .marcas{position:relative;height:1.4em;border-top:1px solid var(--sup3);font-size:var(--t-note);color:var(--apoyo);font-variant-numeric:tabular-nums}
-.eje .marcas span{position:absolute;top:.3em;transform:translateX(-50%)}
-
-/* caso con cifras */
-.caso{border:3px solid var(--negro);border-radius:28px;padding:clamp(16px,2.4vh,32px) clamp(18px,2.2vw,44px);display:flex;align-items:center;gap:clamp(14px,2vw,40px);flex-wrap:wrap}
-.caso .gran{font-weight:800;font-size:clamp(30px,3.33vw,64px);color:var(--naranja);white-space:nowrap;font-variant-numeric:tabular-nums}
-.caso .frase{font-size:clamp(16px,1.77vw,34px);flex:1;min-width:18ch}
-.tarjetas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(12px,1.3vw,25px)}
-.tarjeta{background:var(--sup);border-radius:28px;padding:clamp(16px,2.1vw,40px);display:flex;flex-direction:column;gap:.35em;min-width:0}
-.tarjeta .cifra{font-weight:800;font-size:clamp(28px,3.4vw,64px);line-height:1;font-variant-numeric:tabular-nums;margin-top:auto;padding-top:.4em}
-.tarjeta .t{font-size:clamp(14px,1.35vw,26px)}
-
-/* listas con símbolo */
-.dos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(18px,3vw,60px)}
-.lista{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:clamp(10px,1.7vh,22px)}
-.lista li{display:grid;grid-template-columns:clamp(22px,1.9vw,36px) minmax(0,1fr);gap:clamp(10px,1vw,20px);align-items:start}
-.sim{width:clamp(22px,1.9vw,36px);aspect-ratio:1;background:var(--negro);border-radius:6px 0 6px 6px;display:grid;place-items:center;margin-top:.12em}
-.sim::after{content:"";width:39%;aspect-ratio:1;background:var(--blanco);border-radius:1px}
-.sim.on{background:var(--naranja)}
-.lista b{font-weight:600;display:block;font-size:clamp(15px,1.56vw,30px);line-height:1.2}
-.lista span.t{font-size:clamp(13px,1.2vw,23px);color:#333}
-
-/* proceso con flechas */
-.proceso{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:clamp(10px,1.2vw,24px)}
-.paso{display:flex;flex-direction:column;gap:clamp(10px,1.6vh,20px);min-width:0;position:relative}
-.circulo{width:clamp(40px,3.75vw,72px);aspect-ratio:1;border-radius:50%;background:var(--azul);color:var(--blanco);display:grid;place-items:center;font-weight:600;font-size:var(--t-num);position:relative;z-index:1}
-.paso:not(:last-child)::before{content:"";position:absolute;top:calc(clamp(40px,3.75vw,72px)/2 - 1.5px);left:clamp(40px,3.75vw,72px);right:calc(-1*clamp(10px,1.2vw,24px));height:3px;background:var(--azul)}
-.paso:not(:last-child)::after{content:"";position:absolute;top:calc(clamp(40px,3.75vw,72px)/2 - 7px);right:calc(-1*clamp(10px,1.2vw,24px) + 2px);border:7px solid transparent;border-left:10px solid var(--azul);border-right:0}
-.paso .tarjeta{flex:1;border-radius:22px}
-.paso .tarjeta .h{font-size:clamp(15px,1.46vw,28px)}
-
-/* cierre */
-.barra-naranja{width:clamp(80px,8.3vw,160px);height:8px;background:var(--naranja);margin:auto 0 clamp(14px,2vh,24px)}
-.cierre-titulo{font-weight:800;font-size:clamp(32px,4.17vw,80px);line-height:1.05;margin:.2em 0 .4em;max-width:16ch;text-wrap:balance}
-.firma{font-style:italic;font-weight:300;font-size:clamp(16px,1.67vw,32px);margin-top:1em}
-.contacto{display:grid;grid-template-columns:repeat(3,auto);justify-content:start;gap:8px clamp(20px,3vw,60px);margin-top:clamp(24px,6vh,80px);font-size:clamp(13px,1.25vw,24px)}
-
-/* navegación */
-.nav{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:max(16px,env(safe-area-inset-bottom,0px));z-index:10;display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.92);border:1px solid var(--sup3);border-radius:999px;padding:4px}
-.nav button{font:600 13px/1 var(--f);border:0;background:transparent;width:34px;height:34px;border-radius:50%;cursor:pointer;color:var(--negro)}
-.nav button:hover{background:var(--sup)}
-.nav button:focus-visible,a:focus-visible{outline:2px solid var(--azul);outline-offset:2px}
-.nav .cnt{font:600 12px/1 var(--f);font-variant-numeric:tabular-nums;min-width:52px;text-align:center;color:var(--apoyo)}
-
+.nota{font-weight:400;font-size:12.5px;color:var(--apoyo)}
+/* barras */
+.barras{display:flex;flex-direction:column;gap:12px}
+.fila{display:grid;grid-template-columns:150px minmax(0,1fr);gap:16px;align-items:center}
+.fila .et{font-weight:600;font-size:14px}
+.pista{position:relative;height:30px;margin-right:56px}
+.pista .b{position:absolute;left:0;top:0;bottom:0;background:var(--linea);border-radius:0 4px 4px 0}
+.fila.clave .b{background:var(--naranja)}
+.pista .v{position:absolute;top:50%;transform:translateY(-50%);padding-left:8px;font-weight:800;font-size:15px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.dato{margin-top:22px;display:flex;flex-wrap:wrap;gap:8px 28px;align-items:baseline}
+.dato b{font-weight:800;font-size:clamp(26px,3vw,36px);font-variant-numeric:tabular-nums}
+/* opciones de agua */
+.opciones{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:20px}
+.op{background:var(--sup);border-radius:20px;padding:18px 20px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.op .k{font-weight:600;font-size:12px;color:var(--apoyo)}
+.op b{font-weight:600;font-size:16px;line-height:1.25}
+.op span{font-size:14px}
+/* requerimientos */
+.dos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:32px}
+.dos h3{font-weight:600;font-size:16px;margin:0 0 12px}
+ul.lista{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+ul.lista li{display:grid;grid-template-columns:16px minmax(0,1fr);gap:12px;align-items:start;font-size:15px}
+.sim{width:16px;height:16px;background:var(--negro);border-radius:3px 0 3px 3px;display:grid;place-items:center;margin-top:3px}
+.sim::after{content:"";width:6px;height:6px;background:var(--blanco)}
+ul.lista li b{font-weight:600}
+/* pasos */
+ol.pasos{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;counter-reset:p}
+ol.pasos li{counter-increment:p;border-top:3px solid var(--azul);padding-top:12px;font-size:14px;min-width:0}
+ol.pasos li::before{content:counter(p);display:block;font-weight:800;font-size:22px;color:var(--azul);margin-bottom:4px}
+ol.pasos b{display:block;font-weight:600;font-size:15px}
+footer{border-top:1px solid var(--linea);padding:18px var(--gxr) 22px var(--gx);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--apoyo);align-items:center}
+footer img{height:10px;width:auto}
+a:focus-visible{outline:2px solid var(--azul);outline-offset:2px}
 @media (max-width:820px){
-  .cols,.tarjetas,.dos{grid-template-columns:1fr}
-  .proceso{grid-template-columns:1fr}
-  .paso{flex-direction:row;align-items:flex-start}
-  .paso:not(:last-child)::before,.paso:not(:last-child)::after{display:none}
-  .fila{grid-template-columns:44px minmax(0,1fr)}
-  .fila .dato{grid-column:2;white-space:normal}.fila .dato small{text-align:left}
-  .logo-sup{width:84px}
-  .contacto{grid-template-columns:1fr}
-  .marco,.marco iframe{min-height:78vh}
+  .opciones,.dos{grid-template-columns:1fr}
+  ol.pasos{grid-template-columns:1fr}
+  .fila{grid-template-columns:110px minmax(0,1fr)}
+  .barra .t{font-size:12px}
+  .hero{height:auto;min-height:0}.hero iframe{height:calc(100svh - 84px);min-height:600px;flex:none}
 }
-
-@media (min-width:821px) and (min-height:561px){
-  .lamina{height:100vh;height:100svh}
-  #l3 .zona{min-height:0}
-  #l3 .marco,#l3 .marco iframe{min-height:0}
-  #l6 .zona{gap:clamp(14px,2.2vh,32px);padding-top:clamp(12px,2.6vh,32px)}
-  #l6 .tarjeta{padding:clamp(14px,1.7vw,32px)}
-}
-@media (max-width:820px){.pie{text-align:left;padding-right:150px}}
 </style>
-
 
 </head>
 <body>
-<!-- 01 Portada -->
-<section class="lamina oscura" id="l1" aria-label="Portada">
-  <div class="foto" style="background-image:url(assets/portada.jpg)"></div><div class="velo"></div>
-  <img class="logo-portada" src="assets/face-logo-descriptor-blanco.svg" alt="FACE Innovación Estratégica">
-  <h1 class="portada-titulo">Nueva distribución de la sala de envasado</h1>
-  <p class="portada-sub">Cuatro líneas de producción, un flujo ordenado y lo que hace falta para ponerlo en marcha.</p>
-  <p class="portada-meta">Sativa 18 · Junta Directiva · Noviembre 2026</p>
+<div class="barra">
+  <div class="marca"><img src="assets/face-logo-negro.svg" alt="FACE"><span class="sep"></span><span class="t">Sala de envasado · Sativa 18</span></div>
+  <a href="modelo.html" target="_blank" rel="noopener">Pantalla completa</a>
+</div>
+
+<section class="hero" aria-label="Modelo 3D de la sala">
+  <iframe src="modelo.html" title="Modelo 3D interactivo de la sala de envasado"></iframe>
+  <a class="bajar" href="#resumen">Capacidad, requerimientos y próximos pasos ↓</a>
 </section>
 
-<!-- 02 Punto de partida -->
-<section class="lamina" id="l2" aria-label="Punto de partida">
-  <div class="cab"><div><p class="eyebrow">Punto de partida</p><h2 class="titulo">La meta es duplicar la producción en el mismo espacio</h2></div>
-  <img class="logo-sup" src="assets/face-logo-negro.svg" alt="FACE"></div>
-  <div class="zona">
-    <div class="banda"><span class="gran">198 m²</span><span class="frase">La sala mide cerca de 16,5 × 12 m, tiene 4 columnas y una sola puerta en una esquina.</span></div>
-    <div class="cols">
-      <div class="col"><div class="num">01</div><div class="h">Ordenar el flujo</div><p>Cada línea trabaja por separado, desde la mezcla hasta el palet, y puede atender a un cliente distinto.</p></div>
-      <div class="col"><div class="num">02</div><div class="h">Medir la capacidad</div><p>Un modelo de producción calcula cuánto da cada etapa y cuál fija el ritmo de la sala.</p></div>
-      <div class="col"><div class="num">03</div><div class="h">Preparar las compras</div><p>Los equipos y las obras que faltan quedan en una lista con prioridad y estado.</p></div>
+<main id="resumen">
+  <section aria-labelledby="h-cap">
+    <p class="eyebrow">Capacidad</p>
+    <h2 id="h-cap">El agua calentada fija el ritmo de la sala</h2>
+    <div class="barras" id="barras" role="img" aria-label="Litros de producto por día por etapa: agua calentada 1.693, mezcladores 2.400, ósmosis inversa 3.556, llenado 4.659."></div>
+    <div class="dato"><b>1.693 → 2.400 L/día</b><p>Si el calentador deja de esperar las 15 horas de enfriamiento, la sala produce un 42 % más.</p></div>
+    <div class="opciones">
+      <div class="op"><span class="k">Inversión baja</span><b>Llenar y calentar fuera del turno</b><span>Control de nivel y termostato con corte de seguridad.</span></div>
+      <div class="op"><span class="k">Inversión media</span><b>Tanque de reposo para enfriar</b><span>Acero inoxidable cerrado, unos 2.200 L.</span></div>
+      <div class="op"><span class="k">Inversión media</span><b>Intercambiador de calor</b><span>Enfría el agua en unas 2 horas.</span></div>
     </div>
-  </div>
-  <p class="pie">FACE Innovación Estratégica / Nueva distribución de la sala de envasado / Pág. 02</p>
-</section>
+    <p class="nota" style="margin-top:14px">Litros de producto por día, turno de 8 horas. Modelo de producción de la sala, noviembre 2026; incluye tiempos de mezcla estimados.</p>
+  </section>
 
-<!-- 03 Modelo 3D -->
-<section class="lamina" id="l3" aria-label="Modelo 3D de la sala">
-  <div class="cab"><div><p class="eyebrow">La sala en 3D</p><h2 class="titulo">Cada línea tiene su zona y su recorrido</h2></div>
-  <img class="logo-sup" src="assets/face-logo-negro.svg" alt="FACE"></div>
-  <div class="zona" style="justify-content:flex-start">
-    <div class="marco"><iframe src="modelo.html" title="Modelo 3D interactivo de la sala de envasado" loading="lazy"></iframe></div>
-    <div class="marco-pie"><p class="nota">Piso gris epóxico, marcado de piso por colores y columnas en los pasillos. Los equipos se pueden arrastrar para probar otras distribuciones.</p>
-      <a class="boton" href="modelo.html" target="_blank" rel="noopener">Abrir el modelo en pantalla completa</a></div>
-  </div>
-  <p class="pie">FACE Innovación Estratégica / Nueva distribución de la sala de envasado / Pág. 03</p>
-</section>
-
-<!-- 04 Las cuatro líneas -->
-<section class="lamina" id="l4" aria-label="Las cuatro líneas">
-  <div class="cab"><div><p class="eyebrow">Líneas de producción</p><h2 class="titulo">Cuatro líneas que trabajan por separado</h2></div>
-  <img class="logo-sup" src="assets/face-logo-negro.svg" alt="FACE"></div>
-  <div class="zona">
-    <div class="filas">
-      <div class="fila"><span class="n">01</span><div><div class="h">Llenadora manual</div><p class="t">Recipiente, llenadora manual, banda con codificadora y palet.</p></div><span class="dato">960 und/h<small>80 ml</small></span></div>
-      <div class="fila"><span class="n">02</span><div><div class="h">Planos con cinta</div><p class="t">Mezclador móvil, recipiente, alimentación de línea, llenadora, etiquetadora, mesa y palet.</p></div><span class="dato">1.200 und/h<small>220 ml</small></span></div>
-      <div class="fila"><span class="n">03</span><div><div class="h">Planos con cinta</div><p class="t">El mismo recorrido de la línea 2. Comparte la etiquetadora con ella.</p></div><span class="dato">1.200 und/h<small>220 ml</small></span></div>
-      <div class="fila"><span class="n">04</span><div><div class="h">Colapsibles</div><p class="t">Mezclador móvil, recipiente, alimentación de línea, llenadora de colapsibles, mesa y palet.</p></div><span class="dato">1.560 und/h<small>120 g</small></span></div>
-    </div>
-    <p class="nota">Velocidades nominales de cada llenadora, tomadas del modelo de producción de la sala.</p>
-  </div>
-  <p class="pie">FACE Innovación Estratégica / Nueva distribución de la sala de envasado / Pág. 04</p>
-</section>
-
-<!-- 05 Capacidad -->
-<section class="lamina" id="l5" aria-label="Capacidad por etapa">
-  <div class="cab"><div><p class="eyebrow">Capacidad por etapa</p><h2 class="titulo">El agua calentada fija el ritmo de la sala</h2></div>
-  <img class="logo-sup" src="assets/face-logo-negro.svg" alt="FACE"></div>
-  <div class="zona">
-    <div class="barras" id="barras" role="img" aria-label="Litros de producto por día que permite cada etapa: agua calentada 1.693, mezcladores 2.400, ósmosis inversa 3.556 y llenado 4.659."></div>
-    <p class="cierre-msg">Hoy la sala puede producir hasta 1.693 L de producto por día, aunque los mezcladores y las llenadoras dan para más.</p>
-    <p class="nota">Litros de producto por día en un turno de 8 horas. Fuente: modelo de producción de la sala de envasado, noviembre 2026. Supone 0,9 L de agua calentada por litro de producto, 15 h de enfriamiento y tiempos de mezcla estimados por confirmar.</p>
-  </div>
-  <p class="pie">FACE Innovación Estratégica / Nueva distribución de la sala de envasado / Pág. 05</p>
-</section>
-
-<!-- 06 Agua -->
-<section class="lamina" id="l6" aria-label="Agua calentada">
-  <div class="cab"><div><p class="eyebrow">Agua calentada</p><h2 class="titulo">Liberar el calentador sube la producción</h2></div>
-  <img class="logo-sup" src="assets/face-logo-negro.svg" alt="FACE"></div>
-  <div class="zona">
-    <div class="caso"><span class="gran">1.693 → 2.400 L/día</span><span class="frase">El agua se enfría 15 horas dentro del calentador. Si el tanque queda libre antes, la sala produce un 42 % más.</span></div>
-    <div class="tarjetas">
-      <div class="tarjeta"><span class="num">Inversión baja</span><span class="h">Llenar y calentar fuera del turno</span><p class="t">Control de nivel en la ósmosis y termostato con corte de seguridad para trabajar de noche.</p><span class="cifra">2.400</span><span class="nota">L/día con 24 h de operación</span></div>
-      <div class="tarjeta"><span class="num">Inversión media</span><span class="h">Tanque de reposo para enfriar</span><p class="t">Tanque de acero inoxidable cerrado de unos 2.200 L, el agua de un día de producción.</p><span class="cifra">2.400</span><span class="nota">L/día en el turno actual</span></div>
-      <div class="tarjeta"><span class="num">Inversión media</span><span class="h">Intercambiador de calor</span><p class="t">Enfría el agua en unas 2 horas dentro de un circuito cerrado.</p><span class="cifra">2.400</span><span class="nota">L/día en el turno actual</span></div>
-    </div>
-    <p class="nota">Con 2.400 L/día el ritmo pasa a depender de los mezcladores. Fuente: modelo de producción de la sala, noviembre 2026.</p>
-  </div>
-  <p class="pie">FACE Innovación Estratégica / Nueva distribución de la sala de envasado / Pág. 06</p>
-</section>
-
-<!-- 07 Requerimientos -->
-<section class="lamina" id="l7" aria-label="Requerimientos">
-  <div class="cab"><div><p class="eyebrow">Requerimientos</p><h2 class="titulo">Lo que necesita el nuevo flujo</h2></div>
-  <img class="logo-sup" src="assets/face-logo-negro.svg" alt="FACE"></div>
-  <div class="zona">
+  <section aria-labelledby="h-req">
+    <p class="eyebrow">Requerimientos</p>
+    <h2 id="h-req">Lo que necesita el nuevo flujo</h2>
     <div class="dos">
-      <div><div class="h" style="margin-bottom:.7em">Equipos</div>
-        <ul class="lista">
-          <li><span class="sim on"></span><div><b>Etiquetadora</b><span class="t">Hoy una sola atiende a las líneas 2 y 3, que le mandan hasta 2.040 und/h.</span></div></li>
-          <li><span class="sim"></span><div><b>Otra codificadora</b><span class="t">Hoy solo codifica la línea 1.</span></div></li>
-          <li><span class="sim"></span><div><b>Alimentación de las líneas (secon)</b><span class="t">Lleva la mezcla del recipiente a cada llenadora.</span></div></li>
-          <li><span class="sim"></span><div><b>2 mezcladores cortos</b><span class="t">Mezcladores móviles para la línea.</span></div></li>
-          <li><span class="sim"></span><div><b>Palets de plástico</b><span class="t">Al menos uno por línea.</span></div></li>
-        </ul></div>
-      <div><div class="h" style="margin-bottom:.7em">Infraestructura</div>
-        <ul class="lista">
-          <li><span class="sim"></span><div><b>Proceso de ajuste en la sala del agua</b><span class="t">Implica mover las tuberías de conexión.</span></div></li>
-          <li><span class="sim"></span><div><b>Piso gris epóxico</b><span class="t">Superficie continua y lavable en toda la sala.</span></div></li>
-          <li><span class="sim"></span><div><b>Cinta 3M para marcado de piso</b><span class="t">Amarillo para las líneas, blanco para los equipos, verde para los palets, rojo con blanco frente a la puerta.</span></div></li>
-          <li><span class="sim"></span><div><b>Paredes blancas</b><span class="t">Pintura lavable.</span></div></li>
-        </ul></div>
+      <div><h3>Equipos</h3><ul class="lista">
+        <li><span class="sim"></span><span><b>Etiquetadora:</b> hoy una sola atiende a las líneas 2 y 3</span></li>
+        <li><span class="sim"></span><span><b>Otra codificadora</b></span></li>
+        <li><span class="sim"></span><span><b>Alimentación de las líneas (secon)</b></span></li>
+        <li><span class="sim"></span><span><b>2 mezcladores cortos</b></span></li>
+        <li><span class="sim"></span><span><b>Palets de plástico</b></span></li>
+      </ul></div>
+      <div><h3>Infraestructura</h3><ul class="lista">
+        <li><span class="sim"></span><span><b>Proceso de ajuste en la sala del agua,</b> moviendo las tuberías de conexión</span></li>
+        <li><span class="sim"></span><span><b>Piso gris epóxico</b></span></li>
+        <li><span class="sim"></span><span><b>Cinta 3M para marcado de piso</b></span></li>
+        <li><span class="sim"></span><span><b>Paredes blancas</b></span></li>
+      </ul></div>
     </div>
-  </div>
-  <p class="pie">FACE Innovación Estratégica / Nueva distribución de la sala de envasado / Pág. 07</p>
-</section>
+  </section>
 
-<!-- 08 Próximos pasos -->
-<section class="lamina" id="l8" aria-label="Próximos pasos">
-  <div class="cab"><div><p class="eyebrow">Próximos pasos</p><h2 class="titulo">Del modelo a la compra</h2></div>
-  <img class="logo-sup" src="assets/face-logo-negro.svg" alt="FACE"></div>
-  <div class="zona">
-    <div class="proceso">
-      <div class="paso"><span class="circulo">1</span><div class="tarjeta"><span class="h">Medir la sala</span><p class="t">Medidas reales y ubicación de las 4 columnas.</p></div></div>
-      <div class="paso"><span class="circulo">2</span><div class="tarjeta"><span class="h">Cotizar acabados</span><p class="t">Piso epóxico, cinta 3M y palets de plástico.</p></div></div>
-      <div class="paso"><span class="circulo">3</span><div class="tarjeta"><span class="h">Definir equipos</span><p class="t">Secon, codificadora y mezcladores cortos.</p></div></div>
-      <div class="paso"><span class="circulo">4</span><div class="tarjeta"><span class="h">Medir la etiquetadora</span><p class="t">Velocidad real y si hace falta una segunda.</p></div></div>
-      <div class="paso"><span class="circulo">5</span><div class="tarjeta"><span class="h">Elegir la solución del agua</span><p class="t">Y planificar el traslado del ajuste a la sala del agua.</p></div></div>
-    </div>
-    <p class="cierre-msg">Con los datos medidos en planta, el modelo 3D y el de producción se ajustan antes de comprar.</p>
-  </div>
-  <p class="pie">FACE Innovación Estratégica / Nueva distribución de la sala de envasado / Pág. 08</p>
-</section>
+  <section aria-labelledby="h-pas">
+    <p class="eyebrow">Próximos pasos</p>
+    <h2 id="h-pas">Del modelo a la compra</h2>
+    <ol class="pasos">
+      <li><b>Medir la sala</b>Medidas reales y columnas</li>
+      <li><b>Cotizar acabados</b>Piso, cinta y palets</li>
+      <li><b>Definir equipos</b>Secon, codificadora y mezcladores</li>
+      <li><b>Medir la etiquetadora</b>Velocidad real</li>
+      <li><b>Elegir la solución del agua</b>Y el traslado del ajuste</li>
+    </ol>
+  </section>
+</main>
 
-<!-- 09 Cierre -->
-<section class="lamina oscura" id="l9" aria-label="Cierre">
-  <div class="foto" style="background-image:url(assets/cierre.jpg)"></div><div class="velo"></div>
-  <img class="logo-portada" src="assets/face-logo-descriptor-blanco.svg" alt="FACE Innovación Estratégica">
-  <div class="barra-naranja"></div>
-  <p class="eyebrow" style="color:#fff;font-size:clamp(14px,1.67vw,32px)">Siguiente paso</p>
-  <p class="cierre-titulo">Medir en planta y cerrar la lista de compras</p>
-  <p style="max-width:40ch;font-size:clamp(16px,1.67vw,32px)">Con esas cifras, la sala de envasado queda lista para trabajar en cuatro líneas.</p>
-  <p class="firma">Innovar con dirección.</p>
-  <div class="contacto"><span>Valencia &amp; Caracas · Venezuela</span><span>info@modeloface.com</span><span>www.modeloface.com</span></div>
-</section>
-
-<nav class="nav" aria-label="Navegación entre láminas">
-  <button id="prev" aria-label="Lámina anterior">↑</button>
-  <span class="cnt" id="cnt">01 / 09</span>
-  <button id="next" aria-label="Lámina siguiente">↓</button>
-</nav>
+<footer><img src="assets/face-logo-negro.svg" alt="FACE"><span>FACE Innovación Estratégica · Noviembre 2026</span></footer>
 
 <script>
 (function(){
-  // gráfico de capacidad por etapa (barras horizontales a escala, una sola en naranja: la etapa que fija el ritmo)
-  const datos=[["Agua calentada",1693,true],["Mezcladores",2400],["Ósmosis inversa",3556],["Llenado",4659]];
-  const max=5000, fmt=n=>n.toLocaleString('es-VE');
-  const el=document.getElementById('barras');
-  el.innerHTML=datos.map(([e,v,k])=>`<div class="barra${k?' clave':''}" title="${e}: ${fmt(v)} L de producto por día"><span class="et">${e}</span><div class="pista"><span class="b" style="width:${v/max*100}%"></span><span class="v" style="left:${v/max*100}%">${fmt(v)}</span></div></div>`).join('')+
-   `<div class="eje"><span></span><div class="marcas">${[0,1000,2000,3000,4000,5000].map(t=>`<span style="left:${t/max*100}%">${fmt(t)}</span>`).join('')}</div></div>`;
-
-  const ls=[...document.querySelectorAll('.lamina')], cnt=document.getElementById('cnt');
-  const pad=n=>String(n).padStart(2,'0');
-  let cur=0;
-  const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting&&e.intersectionRatio>.5){cur=ls.indexOf(e.target);cnt.textContent=pad(cur+1)+' / '+pad(ls.length);}});},{threshold:[.5,.75]});
-  ls.forEach(l=>io.observe(l));
-  const go=i=>{i=Math.max(0,Math.min(ls.length-1,i));ls[i].scrollIntoView({block:'start'});};
-  document.getElementById('prev').onclick=()=>go(cur-1);
-  document.getElementById('next').onclick=()=>go(cur+1);
-  document.addEventListener('keydown',e=>{if(/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))return;
-    if(['ArrowDown','PageDown',' '].includes(e.key)){e.preventDefault();go(cur+1);}
-    if(['ArrowUp','PageUp'].includes(e.key)){e.preventDefault();go(cur-1);}
-    if(e.key==='Home'){e.preventDefault();go(0);} if(e.key==='End'){e.preventDefault();go(ls.length-1);}});
+  const d=[["Agua calentada",1693,true],["Mezcladores",2400],["Ósmosis inversa",3556],["Llenado",4659]],max=5000,f=n=>n.toLocaleString('es-VE');
+  document.getElementById('barras').innerHTML=d.map(([e,v,k])=>`<div class="fila${k?' clave':''}" title="${e}: ${f(v)} L/día"><span class="et">${e}</span><div class="pista"><span class="b" style="width:${v/max*100}%"></span><span class="v" style="left:${v/max*100}%">${f(v)}</span></div></div>`).join('');
 })();
 </script>
 
