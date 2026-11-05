@@ -24,6 +24,7 @@
   --bg:#0b0b0c; --surface:#17181a; --surface-2:#222326; --fg:#ffffff; --muted:#a3a4a6;
   --line:#33353a; --gris:#8d8e8f; --azul:#4d84ff; --naranja:#ff6a33; --ok:#4cc27a; --warn:#ff7a6b;
   --scene:#141518; color-scheme:dark}
+[hidden]{display:none!important}
 html,body{height:100%}
 body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-weight:300;font-size:14px;line-height:1.45;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px}
@@ -96,6 +97,11 @@ textarea{min-height:58px;resize:vertical}
 .warnlist{margin:0;padding-left:16px;font-size:12.5px}
 .copybox{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;min-height:90px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* barra de la selección */
+.chip-sel{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);z-index:4;display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--azul);padding:5px 6px 5px 12px;max-width:calc(100% - 20px);box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.chip-sel b{font-weight:600;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.chip-sel button{padding:5px 8px;font-size:12px;flex:none}
+.chip-sel:not([hidden])~.coord{bottom:58px}
 /* modo compacto: dentro de la presentación o en teléfono el modelo ocupa toda la pantalla */
 #bPanel,#bEdit,.cerrar{display:none}
 body.compact #bPanel,body.compact #bEdit{display:inline-block}
@@ -141,6 +147,7 @@ body.compact .cerrar{display:block;align-self:flex-end}
       </div>
       <button id="bPanel" aria-pressed="false">Panel</button>
       <button id="bEdit" aria-pressed="false">Editar</button>
+      <div class="seg"><button id="bUndo" disabled title="Deshacer (Ctrl+Z)" aria-label="Deshacer">↶ Deshacer</button><button id="bRedo" disabled title="Rehacer (Ctrl+Y)" aria-label="Rehacer">↷</button></div>
       <button id="bRot" class="ed" disabled>Girar 90°</button>
       <button id="bDup" class="ed" disabled>Duplicar</button>
       <button id="bDel" class="ed" disabled>Quitar</button>
@@ -160,6 +167,7 @@ body.compact .cerrar{display:block;align-self:flex-end}
     </div>
     <div class="hint" id="hint">Arrastra un equipo para moverlo. Arrastra el fondo para girar la vista y usa la rueda o dos dedos para acercar.</div>
     <div class="coord" id="coord" hidden></div>
+    <div class="chip-sel" id="selChip" hidden><b id="chipName"></b><button id="chipRot">Girar</button><button id="chipInfo">Ver datos</button><button id="chipOff" aria-label="Quitar selección">✕</button></div>
   </div>
 
   <aside>
@@ -547,47 +555,49 @@ let drag=null,down=null;
 function setNdc(e){const r=cv.getBoundingClientRect();ndc.set((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1);ray.setFromCamera(ndc,cam);}
 function pick(){const hs=ray.intersectObjects(itemGroup.children,true);for(const h of hs){const id=h.object.userData.id;if(id)return id;}return null;}
 cv.addEventListener('pointerdown',e=>{setNdc(e);const id=pick();down={x:e.clientX,y:e.clientY,id};
-  if(id){const it=byId(id);select(id);if(ray.ray.intersectPlane(plane,hit)){drag={id,ox:hit.x-it.x,oz:hit.z-it.z,moved:false};controls.enabled=false;cv.setPointerCapture(e.pointerId);cv.classList.add('dragging');}}},{capture:true});
+  if(id){const it=byId(id);select(id);if(ray.ray.intersectPlane(plane,hit)){drag={id,ox:hit.x-it.x,oz:hit.z-it.z,moved:false,pre:snap()};controls.enabled=false;cv.setPointerCapture(e.pointerId);cv.classList.add('dragging');}}},{capture:true});
 cv.addEventListener('pointermove',e=>{if(!drag){if(e.pointerType==='mouse'){setNdc(e);cv.style.cursor=pick()?'pointer':'';}return;}
   setNdc(e);if(!ray.ray.intersectPlane(plane,hit))return;const it=byId(drag.id);const d=dims(it);const s=state.layers.snap?.1:.01;
   let x=Math.round((hit.x-drag.ox)/s)*s,z=Math.round((hit.z-drag.oz)/s)*s;
   x=Math.min(ROOM.w-d.w/2,Math.max(d.w/2,x));z=Math.min(ROOM.d-d.d/2,Math.max(d.d/2,z));
-  if(x!==it.x||z!==it.z){it.x=+x.toFixed(2);it.z=+z.toFixed(2);objs[it.id].g.position.set(it.x,0,it.z);drag.moved=true;
+  if(x!==it.x||z!==it.z){if(!drag.moved)checkpoint(drag.pre);it.x=+x.toFixed(2);it.z=+z.toFixed(2);objs[it.id].g.position.set(it.x,0,it.z);drag.moved=true;
     showCoord(it);const pairs=checkCollisions();updateTape();updateFlow();renderKpis(pairs);}});
-function endDrag(e){if(drag){controls.enabled=true;cv.classList.remove('dragging');if(drag.moved){save();renderPanels();}drag=null;setTimeout(()=>document.getElementById('coord').hidden=true,900);}
+function endDrag(e){if(drag){controls.enabled=true;cv.classList.remove('dragging');if(drag.moved){save();renderPanels();updChip();}drag=null;setTimeout(()=>document.getElementById('coord').hidden=true,900);}
   else if(down&&!down.id&&Math.hypot(e.clientX-down.x,e.clientY-down.y)<5){select(null);}down=null;}
 cv.addEventListener('pointerup',endDrag);cv.addEventListener('pointercancel',endDrag);
 function showCoord(it){const c=document.getElementById('coord');c.hidden=false;const r=rectOf(it);
   c.textContent=`${nameOf(it)} · centro ${fmt(it.x,2)} m, ${fmt(it.z,2)} m · a ${fmt(Math.max(0,r.x0),2)} m de la pared izquierda`;}
 document.addEventListener('keydown',e=>{if(/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))return;
+  if((e.ctrlKey||e.metaKey)&&(e.key==='z'||e.key==='Z')){e.preventDefault();e.shiftKey?redoIt():undoIt();return;}
+  if((e.ctrlKey||e.metaKey)&&(e.key==='y'||e.key==='Y')){e.preventDefault();redoIt();return;}
   if(e.key==='Escape'){select(null);return;}if(!selId)return;const it=byId(selId);
   if(e.key==='r'||e.key==='R'){rotateSel();e.preventDefault();}
   else if(e.key==='Delete'||e.key==='Backspace'){removeSel();e.preventDefault();}
-  else if(e.key.startsWith('Arrow')){const st=e.shiftKey?.5:.1;const d=dims(it);
+  else if(e.key.startsWith('Arrow')){checkpoint();const st=e.shiftKey?.5:.1;const d=dims(it);
     if(e.key==='ArrowLeft')it.x-=st;if(e.key==='ArrowRight')it.x+=st;if(e.key==='ArrowUp')it.z-=st;if(e.key==='ArrowDown')it.z+=st;
     it.x=+Math.min(ROOM.w-d.w/2,Math.max(d.w/2,it.x)).toFixed(2);it.z=+Math.min(ROOM.d-d.d/2,Math.max(d.d/2,it.z)).toFixed(2);
     objs[it.id].g.position.set(it.x,0,it.z);showCoord(it);refresh();save();e.preventDefault();}});
 
 // ---------- actions
-function select(id){selId=id;if(id&&document.body.classList.contains('compact')&&!document.body.classList.contains('panel'))togglePanel(true);['bRot','bDup','bDel'].forEach(b=>document.getElementById(b).disabled=!id);
+function select(id){selId=id;updChip();['bRot','bDup','bDel'].forEach(b=>document.getElementById(b).disabled=!id);
   if(id)openTab('equipo');refreshLight();}
 function refreshLight(){updateTape();renderPanels();}
-function rotateSel(){const it=byId(selId);if(!it)return;it.rot=((it.rot||0)+90)%360;const d=dims(it);
+function rotateSel(){const it=byId(selId);if(!it)return;checkpoint();it.rot=((it.rot||0)+90)%360;const d=dims(it);
   it.x=+Math.min(ROOM.w-d.w/2,Math.max(d.w/2,it.x)).toFixed(2);it.z=+Math.min(ROOM.d-d.d/2,Math.max(d.d/2,it.z)).toFixed(2);
   objs[it.id].g.rotation.y=-it.rot*Math.PI/180;objs[it.id].g.position.set(it.x,0,it.z);refresh();save();}
 function removeSel(){const it=byId(selId);if(!it)return;if(it.id==='e2'||it.id==='e3'){flash('La etiquetadora se cambia de línea desde la pestaña Líneas.');return;}
-  state.items=state.items.filter(i=>i.id!==selId);const o=objs[selId];itemGroup.remove(o.g);disposeGroup(o.g);o.lbl.remove();delete objs[selId];select(null);refresh();save();}
+  checkpoint();state.items=state.items.filter(i=>i.id!==selId);const o=objs[selId];itemGroup.remove(o.g);disposeGroup(o.g);o.lbl.remove();delete objs[selId];select(null);refresh();save();}
 function findFree(w,d,near){const solid=state.items.filter(i=>!TYPES[i.type].floor&&!isGhost(i)).map(rectOf);
   const ok=(x,z)=>{const r={x0:x-w/2-.1,x1:x+w/2+.1,z0:z-d/2-.1,z1:z+d/2+.1};if(r.x0<0||r.z0<0||r.x1>ROOM.w||r.z1>ROOM.d)return false;
     if(r.z0<1.3&&r.x1>DOOR.x0&&r.x0<DOOR.x1)return false;return!solid.some(q=>r.x0<q.x1&&r.x1>q.x0&&r.z0<q.z1&&r.z1>q.z0);};
   if(near){for(let k=0;k<40;k++){const a=k*.7,rr=.3+k*.12;const x=+(near.x+Math.cos(a)*rr).toFixed(1),z=+(near.z+Math.sin(a)*rr).toFixed(1);if(ok(x,z))return{x,z};}}
   for(let z=d/2+.2;z<ROOM.d;z+=.1)for(let x=ROOM.w-w/2-.2;x>0;x-=.1)if(ok(x,z))return{x:+x.toFixed(2),z:+z.toFixed(2)};return{x:CX,z:CZ};}
-function addItem(type,extra={}){const t=TYPES[type];const p=findFree(t.w,t.d,extra.near);delete extra.near;
+function addItem(type,extra={}){checkpoint();const t=TYPES[type];const p=findFree(t.w,t.d,extra.near);delete extra.near;
   const it={id:'n'+(state.seq++),type,line:null,x:p.x,z:p.z,rot:0,...extra};state.items.push(it);buildItem(it);dimLines();select(it.id);refresh();save();return it;}
 function dupSel(){const it=byId(selId);if(!it)return;const t=TYPES[it.type];
   const n=addItem(it.type,{name:it.name,line:it.line,rot:it.rot,note:it.note,near:{x:it.x+dims(it).w,z:it.z}});if(n.rot){const d=dims(n);objs[n.id].g.rotation.y=-n.rot*Math.PI/180;}}
-function setLabeler(n){state.labeler=n;['e2','e3'].forEach(id=>{const it=byId(id);if(it)buildItem(it);});dimLines();refresh();save();}
-function setPlastic(v){state.plastic=v;state.items.filter(i=>i.type==='palet').forEach(buildItem);dimLines();refresh();save();}
+function setLabeler(n){if(n===state.labeler)return;checkpoint();state.labeler=n;['e2','e3'].forEach(id=>{const it=byId(id);if(it)buildItem(it);});dimLines();refresh();save();}
+function setPlastic(v){checkpoint();state.plastic=v;state.items.filter(i=>i.type==='palet').forEach(buildItem);dimLines();refresh();save();}
 let flashT=null;function flash(msg){const h=document.getElementById('hint');h.textContent=msg;clearTimeout(flashT);flashT=setTimeout(()=>h.textContent=HINT,4000);}
 const HINT=document.getElementById('hint').textContent;
 
@@ -601,6 +611,20 @@ document.getElementById('bRot').onclick=rotateSel;
 document.getElementById('bDup').onclick=dupSel;
 document.getElementById('bDel').onclick=removeSel;
 document.getElementById('bAdd').onclick=()=>addItem(document.getElementById('addType').value);
+
+// ---------- deshacer / rehacer
+const hist=[],fut=[];
+function snap(){return JSON.stringify({items:state.items,labeler:state.labeler,plastic:state.plastic,seq:state.seq});}
+function checkpoint(pre){hist.push(pre||snap());if(hist.length>80)hist.shift();fut.length=0;updUndo();}
+function restore(j){const o=JSON.parse(j);state.items=o.items;state.labeler=o.labeler;state.plastic=o.plastic;state.seq=o.seq;selId=null;buildAll();dimLines();select(null);save();updUndo();}
+function undoIt(){if(!hist.length)return;fut.push(snap());restore(hist.pop());flash('Cambio deshecho.');}
+function redoIt(){if(!fut.length)return;hist.push(snap());restore(fut.pop());flash('Cambio rehecho.');}
+function updUndo(){document.getElementById('bUndo').disabled=!hist.length;document.getElementById('bRedo').disabled=!fut.length;}
+document.getElementById('bUndo').onclick=undoIt;document.getElementById('bRedo').onclick=redoIt;
+function updChip(){const c=document.getElementById('selChip');const it=selId&&byId(selId);c.hidden=!it;if(it)document.getElementById('chipName').textContent=(it.line?'Línea '+it.line+' · ':'')+nameOf(it);}
+document.getElementById('chipRot').onclick=()=>rotateSel();
+document.getElementById('chipInfo').onclick=()=>{openTab('equipo');togglePanel(true);};
+document.getElementById('chipOff').onclick=()=>select(null);
 
 // ---------- tabs & panels
 function openTab(t){document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t));
@@ -626,10 +650,11 @@ function renderEquipo(){const p=document.getElementById('pEquipo');const it=selI
     <div class="btns"><button id="eqRot">Girar 90°</button><button id="eqDup">Duplicar</button><button id="eqDel">Quitar</button><button id="eqDone">Listo</button></div>`;
   const q=s=>document.getElementById(s);
   if(ghost)q('eqMoveLab').onclick=()=>setLabeler(it.line);
+  q('eqName').onfocus=()=>checkpoint();
   q('eqName').oninput=e=>{it.name=e.target.value.trim()||undefined;setLabel(it);save();};
-  q('eqLine').onchange=e=>{it.line=e.target.value?+e.target.value:null;refresh();dimLines();save();};
-  q('eqStep').onchange=e=>{it.step=e.target.value?+e.target.value:undefined;updateFlow();save();};
-  const pos=()=>{const dd=dims(it);it.x=+Math.min(ROOM.w-dd.w/2,Math.max(dd.w/2,+q('eqX').value||0)).toFixed(2);it.z=+Math.min(ROOM.d-dd.d/2,Math.max(dd.d/2,+q('eqZ').value||0)).toFixed(2);objs[it.id].g.position.set(it.x,0,it.z);refresh();save();};
+  q('eqLine').onchange=e=>{checkpoint();it.line=e.target.value?+e.target.value:null;refresh();dimLines();save();};
+  q('eqStep').onchange=e=>{checkpoint();it.step=e.target.value?+e.target.value:undefined;updateFlow();save();};
+  const pos=()=>{checkpoint();const dd=dims(it);it.x=+Math.min(ROOM.w-dd.w/2,Math.max(dd.w/2,+q('eqX').value||0)).toFixed(2);it.z=+Math.min(ROOM.d-dd.d/2,Math.max(dd.d/2,+q('eqZ').value||0)).toFixed(2);objs[it.id].g.position.set(it.x,0,it.z);refresh();save();};
   q('eqX').onchange=pos;q('eqZ').onchange=pos;
   q('eqNote').oninput=e=>{it.note=e.target.value;save();};
   q('eqRot').onclick=rotateSel;q('eqDup').onclick=dupSel;q('eqDel').onclick=removeSel;q('eqDone').onclick=()=>select(null);}
@@ -665,7 +690,7 @@ document.getElementById('bCopy').onclick=()=>{const txt=JSON.stringify({sala:'Sa
   if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(()=>flash('Distribución copiada.')).catch(show);}else show();};
 document.getElementById('bReset').onclick=()=>document.getElementById('resetConfirm').hidden=false;
 document.getElementById('bResetNo').onclick=()=>document.getElementById('resetConfirm').hidden=true;
-document.getElementById('bResetYes').onclick=()=>{const keepLy=state.layers;state=fresh();state.layers=keepLy;selId=null;focusLine=null;document.getElementById('resetConfirm').hidden=true;buildAll();dimLines();setView(state.view);save();};
+document.getElementById('bResetYes').onclick=()=>{checkpoint();const keepLy=state.layers;state=fresh();state.layers=keepLy;selId=null;focusLine=null;document.getElementById('resetConfirm').hidden=true;buildAll();dimLines();setView(state.view);save();};
 
 // ---------- start
 buildAll();dimLines();applyLayers();setView(state.view==='plan'?'plan':'3d');
